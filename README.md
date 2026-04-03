@@ -1,172 +1,67 @@
-# Mobile-App-Automation Framework
+# Mobile App Automation Framework
 
-This repository provides a robust Python-based framework for automating mobile application testing using  **Appium** ,  **Selenium** , and  **Pytest** . It is designed to facilitate the testing of Android and iOS applications by interacting with the mobile application UI to execute predefined test scenarios, such as login, navigation, and functional workflows.
+Production-ready Python framework for Android/iOS UI tests using Appium and Pytest. Built with Page Object Model, environment-aware config, retry/fallback helpers, and CI-ready reporting.
 
-## Key Features
+## Architecture
+- `config/` – YAML-driven environment config (`dev`, `staging`) resolved by `config/settings.py` with env-var overrides for secrets.
+- `drivers/` – Driver factory and locator fallback utilities.
+- `pages/` – Page Objects encapsulating screen locators and actions.
+- `tests/` – Pytest suites using fixtures; sample login and navigation specs included.
+- `utils/` – Logging and retry helpers.
+- `reports/` – HTML reports and logs output directory.
+- `.github/workflows/` – GitHub Actions pipeline to run tests and archive reports.
 
-* **Automated Test Cases** : Comprehensive suite of tests covering core mobile application workflows including login, navigation, and other essential functionality.
-* **Centralized Resource Management** : All locators and identifiers are managed via `.resx` files to ensure easy maintenance and scalability.
-* **Secure Environment Configuration** : Support for managing sensitive data like credentials through `.env` files to maintain security.
-* **Cross-Platform Compatibility** : Supports testing on both Android and iOS platforms.
-* **Test Reports** : Detailed HTML-based reports generated post-execution, allowing easy access to test results, including success, failure, and error logs.
-* **Reusable Utilities** : Centralized modules for driver setup, configuration management, and resource file handling.
-* **APK Testing** : Direct testing of Android APK files for Android applications, streamlining the testing process.
-* **Pytest Integration** : Seamless integration with Pytest for structured test execution, with enhanced reporting capabilities via `pytest-html`.
+## Features
+- Page Object Model for maintainability and reuse.
+- Pytest fixtures for driver lifecycle, creds, and report wiring.
+- Configurable environments/platforms via `--env` and `--platform` or env vars.
+- Locator fallback helper to try alternate strategies when primary fails.
+- Lightweight retry helper for flaky actions plus `pytest-rerunfailures` (1 retry by default).
+- Structured logging to console and file.
+- HTML reporting with `pytest-html`; timestamped report path.
+- CI/CD: GitHub Actions runs tests on pushes/PRs and uploads reports.
 
----
-
-## Directory Structure
-
-```plaintext
-Mobile-App-Automation/
-├── resources/
-│   ├── login_test_locators.resx  # Locator definitions for tests
-│   ├── .env                      # Environment variables (credentials, sensitive data)
-├── config/
-│   ├── device_info.py            # Device information setup for testing
-│   ├── desired_caps.py           # Desired capabilities configuration for Appium
-├── apk/
-│   ├── app-release.apk           # Application APK to be tested
-├── tests/
-│   ├── test_login.py             # Login-related test case
-│   ├── test_navigation.py        # Navigation test case
-├── utils/
-│   ├── driver_setup.py           # Initializes and configures the Appium WebDriver
-│   ├── resource_reader.py        # Utility for reading locators from .resx files
-├── reports/
-│   ├── test_report.html          # Test execution HTML report
-├── README.md                     # Project documentation
-├── requirements.txt              # List of Python dependencies
-```
-
----
-
-## Prerequisites
-
-Before setting up the framework, ensure the following prerequisites are met:
-
-* **Python 3.8+** (or a later version)
-* **Appium Server** (for running the Appium tests)
-* **Node.js** (required by Appium)
-* **Android SDK** or **Xcode** (for Android/iOS testing respectively)
-
-To install the required Python dependencies, execute the following command:
-
+## Setup
+1) Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-
----
-
-## Environment Setup
-
-1. **Configure the `.env` File** :
-
-* Create a `.env` file in the `resources/` directory.
-* Add your credentials and other environment variables such as:
-  ```env
-  TEST_EMAIL=your_test_email@example.com
-  TEST_PASS=your_test_password
-  ```
-
-1. **Appium Configuration** :
-
-* Set up device-specific capabilities in `desired_caps.py` and `device_info.py` (located in the `config/` folder).
-* Launch the Appium server using the following command:
-  ```bash
-  appium
-  ```
-
----
-
-## Running the Tests
-
-### Basic Test Run:
-
-To execute the test cases with  **Pytest** , run the following command:
-
+2) Provide BrowserStack/App paths via env vars (recommended) or edit `config/environments/*.yaml`:
 ```bash
-pytest tests/test_login.py --html=reports/test_report.html --self-contained-html
+export BS_USER=your_user
+export BS_KEY=your_key
+export APP_URL=bs://your-app-id   # optional override per run
+export TEST_EMAIL=demo@example.com
+export TEST_PASS=Password!23
 ```
+3) Start Appium server if using local devices (`appium` on port 4723) or ensure BrowserStack credentials are set.
 
-* `--html`: Generates a comprehensive HTML test report.
-* `--self-contained-html`: Ensures that the report is fully self-contained, making it easy to share and view across platforms.
-
-### Enhanced Reporting with `pytest-html`:
-
-To include detailed reporting features, you can use  **pytest-html** . First, ensure the module is installed:
-
+## Running Tests
+- Default (dev/android):
 ```bash
-pip install pytest-html
+pytest
 ```
-
-Then run the test cases with enhanced reporting:
-
+- Specify env/platform:
 ```bash
-pytest tests/test_login.py --html=reports/detailed_report.html --self-contained-html
+pytest --env staging --platform ios
 ```
+HTML report is written to `reports/html/test-report-<timestamp>.html`.
 
-This will provide a rich HTML report with additional details such as screenshots for failed tests, stack traces, and more.
+## CI/CD
+GitHub Actions workflow `.github/workflows/ci.yml`:
+- Sets up Python and dependencies.
+- Runs `pytest --env dev --platform android --maxfail=1`.
+- Uploads HTML report artifact for download.
 
----
+## Sample Tests
+- `tests/test_login.py` – Logs in and asserts user lands on chat tab.
+- `tests/test_navigation.py` – Navigates to Calls tab after login.
 
-## Test Reports
+## Extending
+- Add new screens in `pages/` with clear locators and actions.
+- Keep locators platform-specific via capabilities or conditional locators.
+- Share cross-cutting helpers in `utils/`.
 
-Post-test execution, the results will be available in the `reports/` directory:
-
-* **test_report.html** (or `detailed_report.html` if using enhanced reporting) contains a detailed breakdown of test execution, including:
-  * **Test Summary** : Overview of passed and failed tests.
-  * **Detailed Logs** : Logs, screenshots, and stack traces for any failed tests.
-  * **Interactive Visuals** : An interactive view of the tests with status indicators and other metrics.
-
----
-
-## Key Modules
-
-1. **Driver Setup** (`utils/driver_setup.py`):
-   * Responsible for initializing the Appium WebDriver and setting up connections for both Android and iOS platforms.
-2. **Resource Reader** (`utils/resource_reader.py`):
-   * A utility that allows easy retrieval of locators from `.resx` files, ensuring the locators are always up to date and centrally managed.
-3. **Appium Configuration** (`config/desired_caps.py`):
-   * Contains the configuration settings (desired capabilities) for launching the mobile application on the desired platform and device.
-4. **APK Files** (`apk/`):
-   * Stores the APK file for Android application testing. You can easily replace it with the appropriate APK for your app.
-5. **Test Cases** (`tests/`):
-   * Contains the Pytest-based test cases that define and execute your automated tests, including login, navigation, and any other workflows.
-6. **Test Reporting** :
-
-* The `pytest-html` plugin is used for generating clean and visually appealing HTML reports, which include detailed test outcomes, logs, and screenshots.
-
----
-
-## Contributing
-
-We welcome contributions to improve the framework. To contribute:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Implement the changes and ensure all tests pass.
-4. Submit a pull request with clear documentation on the changes you made.
-
----
-
-## License
-
-This project is licensed under the  **MIT License** . See the `LICENSE` file for further details.
-
----
-
-## Contact
-
-For inquiries, support, or contributions, feel free to reach out to:
-
-* **Author** : Aditya Krishn Jaiswal
-* **Email** : [adityakrishnjaiswal@gmail.com](mailto:adityakrishnjaiswal@gmail.com)
-
----
-
-## Acknowledgements
-
-* **Appium** : For providing the open-source mobile automation platform.
-* **Pytest** : For the powerful testing framework that makes test execution and reporting easy.
-* **Selenium** : For its web automation capabilities, which extend to mobile web testing.
+## Notes
+- Secrets should be passed as env vars; YAML contains placeholders only.
+- Locator names are illustrative—replace with real IDs/XPaths for your app.

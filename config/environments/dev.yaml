@@ -1,0 +1,25 @@
+bs_user: "${BS_USER}"
+bs_key: "${BS_KEY}"
+server_url: "http://{user}:{key}@hub-cloud.browserstack.com/wd/hub"
+implicit_wait: 10
+credentials:
+  username: "demo@example.com"
+  password: "Password!23"
+platforms:
+  android:
+    app: "bs://sample-android-app-id"
+    capabilities:
+      platformName: "Android"
+      appium:deviceName: "Google Pixel 7"
+      appium:platformVersion: "14.0"
+      appium:automationName: "UiAutomator2"
+      appium:autoGrantPermissions: true
+      appium:newCommandTimeout: 300
+  ios:
+    app: "bs://sample-ios-app-id"
+    capabilities:
+      platformName: "iOS"
+      appium:deviceName: "iPhone 14"
+      appium:platformVersion: "16"
+      appium:automationName: "XCUITest"
+      appium:newCommandTimeout: 300

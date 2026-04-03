@@ -1,0 +1,25 @@
+bs_user: "${BS_USER}"
+bs_key: "${BS_KEY}"
+server_url: "http://{user}:{key}@hub-cloud.browserstack.com/wd/hub"
+implicit_wait: 15
+credentials:
+  username: "staging.user@example.com"
+  password: "StagingPass!23"
+platforms:
+  android:
+    app: "bs://staging-android-app-id"
+    capabilities:
+      platformName: "Android"
+      appium:deviceName: "Samsung Galaxy S24"
+      appium:platformVersion: "14.0"
+      appium:automationName: "UiAutomator2"
+      appium:autoGrantPermissions: true
+      appium:newCommandTimeout: 400
+  ios:
+    app: "bs://staging-ios-app-id"
+    capabilities:
+      platformName: "iOS"
+      appium:deviceName: "iPhone 14 Pro"
+      appium:platformVersion: "16"
+      appium:automationName: "XCUITest"
+      appium:newCommandTimeout: 400

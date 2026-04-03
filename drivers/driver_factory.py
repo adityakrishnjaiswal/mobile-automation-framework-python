@@ -12,9 +12,7 @@ from typing import Any, Dict, Optional
 
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
-from appium.webdriver.appium_connection import AppiumConnection
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
-from selenium.webdriver.remote.client_config import ClientConfig
 
 from config.settings import EnvConfig
 from drivers.dummy_driver import DummyDriver
@@ -41,11 +39,9 @@ def create_driver(env: EnvConfig):
         return DummyDriver()
 
     try:
-        client_config = ClientConfig(remote_server_addr=env.server_url)
-        executor = AppiumConnection(client_config=client_config)
-        logger.info("Starting Appium session on %s for platform %s", env.server_url, env.platform)
         options = _options_from_caps(env.capabilities)
-        driver = webdriver.Remote(command_executor=executor, options=options, keep_alive=True)
+        logger.info("Starting Appium session on %s for platform %s", env.server_url, env.platform)
+        driver = webdriver.Remote(command_executor=env.server_url, options=options, keep_alive=True)
         driver.implicitly_wait(env.implicit_wait)
         driver.is_dummy = False
         return driver

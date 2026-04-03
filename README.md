@@ -48,10 +48,10 @@ pytest --env staging --platform ios
 HTML report is written to `reports/html/test-report-<timestamp>.html`.
 
 ## CI/CD
-GitHub Actions workflow `.github/workflows/ci.yml`:
-- Sets up Python and dependencies.
-- Runs `pytest --env dev --platform android --maxfail=1`.
-- Uploads HTML report artifact for download.
+GitHub Actions workflow `.github/workflows/ci.yml` (template-safe):
+- Installs dependencies.
+- Runs `pytest --env dev --platform android --maxfail=1` only when `BS_USER` and `BS_KEY` secrets are present; otherwise it skips tests to avoid red builds on fresh forks.
+- Uploads the HTML report artifact when generated.
 
 ## Sample Tests
 - `tests/test_login.py` – Logs in and asserts user lands on chat tab.

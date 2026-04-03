@@ -11,15 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
+
+      - name: Check required secrets
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.BS_USER }}" ] && [ -n "${{ secrets.BS_KEY }}" ]; then
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run tests (BrowserStack)
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         env:
           BS_USER: ${{ secrets.BS_USER }}
           BS_KEY: ${{ secrets.BS_KEY }}
@@ -28,8 +41,14 @@ jobs:
           TEST_PASS: ${{ secrets.TEST_PASS }}
         run: |
           pytest --env dev --platform android --maxfail=1
+
+      - name: Skip tests (missing secrets)
+        if: steps.check_secrets.outputs.has_secrets == 'false'
+        run: |
+          echo "Skipping tests because BS_USER/BS_KEY secrets are not set. Add them in repo settings to enable CI runs."
+
       - name: Upload HTML report
-        if: always()
+        if: always() && steps.check_secrets.outputs.has_secrets == 'true' && hashFiles('reports/html/**/*.html') != ''
         uses: actions/upload-artifact@v4
         with:
           name: html-report

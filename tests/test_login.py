@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import pytest
+
 from pages.login_page import LoginPage
 
 
+@pytest.mark.requires_device
 def test_user_can_login(driver, creds):
     login = LoginPage(driver)
     login.login(creds["username"], creds["password"])

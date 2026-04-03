@@ -3,5 +3,6 @@ selenium==4.20.0
 pytest==8.1.1
 pytest-html==4.1.1
 pytest-rerunfailures==14.0
+pytest-sugar==1.0.0
 python-dotenv==1.0.1
 PyYAML==6.0.1

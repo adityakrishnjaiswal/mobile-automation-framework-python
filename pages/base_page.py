@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from typing import Optional, Dict
-from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common.exceptions import NoSuchElementException
 
@@ -12,6 +11,8 @@ from drivers.driver_factory import find_with_fallback
 
 
 class BasePage:
+    """Shared helpers for all pages."""
+
     def __init__(self, driver: WebDriver):
         self.driver = driver
         self.log = logging.getLogger(self.__class__.__name__)

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
 
 
+@pytest.mark.requires_device
 def test_navigate_to_calls_tab(driver, creds):
     login = LoginPage(driver).login(creds["username"], creds["password"])
     home = HomePage(driver)

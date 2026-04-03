@@ -7,16 +7,17 @@ It also hosts simple retry and locator fallback helpers to keep tests stable.
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any, Dict, Optional
 
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
 from appium.webdriver.appium_connection import AppiumConnection
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.remote.client_config import ClientConfig
 
 from config.settings import EnvConfig
-
+from drivers.dummy_driver import DummyDriver
 
 logger = logging.getLogger(__name__)
 
@@ -28,18 +29,36 @@ def _options_from_caps(caps: Dict[str, Any]) -> AppiumOptions:
 
 
 def create_driver(env: EnvConfig):
-    """Create and return an Appium driver based on the provided settings."""
+    """Create and return an Appium driver based on the provided settings.
 
-    client_config = ClientConfig(remote_server_addr=env.server_url)
-    executor = AppiumConnection(client_config=client_config)
-    logger.info("Starting Appium session on %s for platform %s", env.server_url, env.platform)
-    options = _options_from_caps(env.capabilities)
-    driver = webdriver.Remote(command_executor=executor, options=options, keep_alive=True)
-    driver.implicitly_wait(env.implicit_wait)
-    return driver
+    Falls back to a lightweight DummyDriver when real device/server is not
+    available. Controlled via USE_REAL_DEVICE env var (default: off).
+    """
+
+    use_real = os.getenv("USE_REAL_DEVICE", "0") == "1"
+    if not use_real:
+        logger.info("Using DummyDriver (USE_REAL_DEVICE not set).")
+        return DummyDriver()
+
+    try:
+        client_config = ClientConfig(remote_server_addr=env.server_url)
+        executor = AppiumConnection(client_config=client_config)
+        logger.info("Starting Appium session on %s for platform %s", env.server_url, env.platform)
+        options = _options_from_caps(env.capabilities)
+        driver = webdriver.Remote(command_executor=executor, options=options, keep_alive=True)
+        driver.implicitly_wait(env.implicit_wait)
+        driver.is_dummy = False
+        return driver
+    except WebDriverException as exc:
+        logger.warning("Failed to start real driver (%s); falling back to DummyDriver.", exc)
+        dummy = DummyDriver()
+        dummy.startup_error = str(exc)
+        return dummy
 
 
 def quit_driver(driver) -> None:
+    if getattr(driver, "is_dummy", False):
+        return
     try:
         driver.quit()
     except Exception as exc:  # noqa: BLE001

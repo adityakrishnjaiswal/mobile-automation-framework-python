@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from selenium.webdriver.common.by import By
+from appium.webdriver.common.appiumby import AppiumBy
 
 from pages.base_page import BasePage
 
@@ -19,7 +20,7 @@ class LoginPage(BasePage):
     # Example alternates for fallback
     chat_tab_alternates = [
         {"by": By.XPATH, "value": "//android.widget.TextView[@text='Chat']"},
-        {"by": By.ACCESSIBILITY_ID, "value": "Chat"},
+        {"by": AppiumBy.ACCESSIBILITY_ID, "value": "Chat"},
     ]
 
     def login(self, username: str, password: str):

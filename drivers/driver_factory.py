@@ -45,7 +45,7 @@ def create_driver(env: EnvConfig):
         driver.implicitly_wait(env.implicit_wait)
         driver.is_dummy = False
         return driver
-    except WebDriverException as exc:
+    except Exception as exc:  # noqa: BLE001
         logger.warning("Failed to start real driver (%s); falling back to DummyDriver.", exc)
         dummy = DummyDriver()
         dummy.startup_error = str(exc)

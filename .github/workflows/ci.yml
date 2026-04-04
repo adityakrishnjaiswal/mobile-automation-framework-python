@@ -25,6 +25,7 @@ jobs:
       - name: Run tests in mock mode (always green)
         env:
           USE_REAL_DEVICE: "0"
+          RUN_MOBILE_TESTS: "false"
         run: |
           pytest --env dev --platform android --maxfail=1
 

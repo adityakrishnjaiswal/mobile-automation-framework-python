@@ -1,7 +1,5 @@
 """Pytest fixtures and hooks for the mobile automation framework."""
 
-from __future__ import annotations
-
 import logging
 import os
 from datetime import datetime

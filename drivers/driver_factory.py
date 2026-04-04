@@ -4,8 +4,6 @@ This module provides a pytest-friendly way to create and dispose of drivers.
 It also hosts simple retry and locator fallback helpers to keep tests stable.
 """
 
-from __future__ import annotations
-
 import logging
 import os
 from typing import Any, Dict, Optional

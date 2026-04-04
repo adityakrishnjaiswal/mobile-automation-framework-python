@@ -1,7 +1,5 @@
 """Login screen page object."""
 
-from __future__ import annotations
-
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.appiumby import AppiumBy
 

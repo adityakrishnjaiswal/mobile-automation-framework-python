@@ -1,7 +1,5 @@
 """Base page object with common helpers and fallback-aware finders."""
 
-from __future__ import annotations
-
 import logging
 from typing import Optional, Dict
 from selenium.webdriver.remote.webdriver import WebDriver

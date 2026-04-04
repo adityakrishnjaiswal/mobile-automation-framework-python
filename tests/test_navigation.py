@@ -5,8 +5,6 @@ if os.getenv("RUN_MOBILE_TESTS") != "true":
     pytest.skip("Skipping mobile tests in CI", allow_module_level=True)
 """Sample navigation test."""
 
-from __future__ import annotations
-
 import os
 import pytest
 

@@ -7,7 +7,11 @@ if os.getenv("RUN_MOBILE_TESTS") != "true":
 
 from __future__ import annotations
 
+import os
 import pytest
+
+if os.getenv("RUN_MOBILE_TESTS") != "true":
+    pytest.skip("Skipping mobile tests in CI", allow_module_level=True)
 
 from pages.login_page import LoginPage
 

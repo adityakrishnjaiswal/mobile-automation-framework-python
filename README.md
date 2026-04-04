@@ -1,4 +1,4 @@
-# 🚀 AI-Enhanced Mobile Automation Framework (Python + Appium)
+# Mobile Automation Framework (Python + Appium)
 
 Production-grade template for showcasing mobile QA excellence: Appium + Pytest, POM-first design, CI that never fails, and intelligent stability guards for flaky environments.
 

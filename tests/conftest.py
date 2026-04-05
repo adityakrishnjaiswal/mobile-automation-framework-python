@@ -11,6 +11,7 @@ from selenium.common.exceptions import WebDriverException
 from config.settings import get_settings
 from drivers.driver_factory import create_driver, quit_driver
 from utils.custom_reporter import CustomJsonReporter
+from utils.custom_html_reporter import CustomHtmlReporter
 from utils.logger import init_logger
 
 
@@ -23,6 +24,12 @@ def pytest_addoption(parser):
         action="store",
         default=None,
         help="Optional path for custom JSON report (defaults to reports/custom/custom-report-<timestamp>.json)",
+    )
+    parser.addoption(
+        "--custom-html-report",
+        action="store",
+        default=None,
+        help="Optional path for custom HTML report (defaults to reports/custom/custom-report-<timestamp>.html)",
     )
 
 
@@ -86,6 +93,11 @@ def pytest_configure(config):
     config._custom_json_reporter = custom_reporter  # stash for unconfigure
     config.pluginmanager.register(custom_reporter, name="custom-json-reporter")
 
+    # Register custom HTML reporter
+    custom_html_reporter = CustomHtmlReporter(config)
+    config._custom_html_reporter = custom_html_reporter
+    config.pluginmanager.register(custom_html_reporter, name="custom-html-reporter")
+
 
 def pytest_html_report_title(report):
     report.title = "Mobile Automation Test Report"
@@ -95,3 +107,6 @@ def pytest_unconfigure(config):
     reporter = getattr(config, "_custom_json_reporter", None)
     if reporter:
         config.pluginmanager.unregister(reporter, name="custom-json-reporter")
+    html_reporter = getattr(config, "_custom_html_reporter", None)
+    if html_reporter:
+        config.pluginmanager.unregister(html_reporter, name="custom-html-reporter")

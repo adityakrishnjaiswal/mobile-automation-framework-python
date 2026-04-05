@@ -58,6 +58,7 @@ pytest --require-real
 
 Reports land in `reports/html/test-report-<timestamp>.html`.
 Custom JSON summaries land in `reports/custom/custom-report-<timestamp>.json` (use `--custom-report path/to/file.json` to override).
+Custom HTML summaries land in `reports/custom/custom-report-<timestamp>.html` (use `--custom-html-report path/to/file.html` to override).
 
 ---
 

@@ -84,22 +84,22 @@ def _render_html(summary: Dict[str, object]) -> str:
   <meta charset=\"utf-8\">
   <title>Custom Test Report</title>
   <style>
-    body { font-family: -apple-system, Segoe UI, sans-serif; margin: 24px; color: #0f172a; }
-    h1 { margin-bottom: 8px; }
-    .meta { color: #475569; margin-bottom: 16px; }
-    .summary { display: flex; gap: 8px; margin-bottom: 16px; }
-    .badge { padding: 6px 10px; border-radius: 6px; font-weight: 600; }
-    .passed { background: #ecfdf3; color: #166534; }
-    .failed { background: #fef2f2; color: #991b1b; }
-    .skipped { background: #f8fafc; color: #334155; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
-    th { background: #f1f5f9; }
-    .nodeid { word-break: break-word; }
-    .pill { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; display: inline-block; }
-    .pill.passed { background: #dcfce7; color: #166534; }
-    .pill.failed { background: #fee2e2; color: #991b1b; }
-    .pill.skipped { background: #e2e8f0; color: #334155; }
+    body {{ font-family: -apple-system, Segoe UI, sans-serif; margin: 24px; color: #0f172a; }}
+    h1 {{ margin-bottom: 8px; }}
+    .meta {{ color: #475569; margin-bottom: 16px; }}
+    .summary {{ display: flex; gap: 8px; margin-bottom: 16px; }}
+    .badge {{ padding: 6px 10px; border-radius: 6px; font-weight: 600; }}
+    .passed {{ background: #ecfdf3; color: #166534; }}
+    .failed {{ background: #fef2f2; color: #991b1b; }}
+    .skipped {{ background: #f8fafc; color: #334155; }}
+    table {{ width: 100%; border-collapse: collapse; }}
+    th, td {{ padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }}
+    th {{ background: #f1f5f9; }}
+    .nodeid {{ word-break: break-word; }}
+    .pill {{ padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; display: inline-block; }}
+    .pill.passed {{ background: #dcfce7; color: #166534; }}
+    .pill.failed {{ background: #fee2e2; color: #991b1b; }}
+    .pill.skipped {{ background: #e2e8f0; color: #334155; }}
   </style>
 </head>
 <body>

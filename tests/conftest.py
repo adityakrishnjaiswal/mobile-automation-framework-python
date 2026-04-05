@@ -10,6 +10,7 @@ from selenium.common.exceptions import WebDriverException
 
 from config.settings import get_settings
 from drivers.driver_factory import create_driver, quit_driver
+from utils.custom_reporter import CustomJsonReporter
 from utils.logger import init_logger
 
 
@@ -17,6 +18,12 @@ def pytest_addoption(parser):
     parser.addoption("--env", action="store", default=os.getenv("TEST_ENV", "dev"), help="Target environment (dev/staging)")
     parser.addoption("--platform", action="store", default=os.getenv("APP_PLATFORM", "android"), help="Target platform (android/ios)")
     parser.addoption("--require-real", action="store_true", default=False, help="Fail instead of skipping when device not available")
+    parser.addoption(
+        "--custom-report",
+        action="store",
+        default=None,
+        help="Optional path for custom JSON report (defaults to reports/custom/custom-report-<timestamp>.json)",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -74,6 +81,17 @@ def pytest_configure(config):
     config.option.htmlpath = report_file
     config.option.self_contained_html = True
 
+    # Register custom JSON reporter alongside pytest-html
+    custom_reporter = CustomJsonReporter(config)
+    config._custom_json_reporter = custom_reporter  # stash for unconfigure
+    config.pluginmanager.register(custom_reporter, name="custom-json-reporter")
+
 
 def pytest_html_report_title(report):
     report.title = "Mobile Automation Test Report"
+
+
+def pytest_unconfigure(config):
+    reporter = getattr(config, "_custom_json_reporter", None)
+    if reporter:
+        config.pluginmanager.unregister(reporter, name="custom-json-reporter")

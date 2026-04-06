@@ -6,6 +6,8 @@ from pages.base_page import BasePage
 
 
 class HomePage(BasePage):
+    """Navigation helpers for the app's main tabs."""
+
     chat_tab = (By.ID, "chat_tab")
     calls_tab = (By.ID, "calls_tab")
     activity_tab = (By.ID, "activity_tab")

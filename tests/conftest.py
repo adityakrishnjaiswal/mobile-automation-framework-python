@@ -16,6 +16,7 @@ from utils.logger import init_logger
 
 
 def pytest_addoption(parser):
+    """CLI flags keep runtime config explicit and discoverable."""
     parser.addoption("--env", action="store", default=os.getenv("TEST_ENV", "dev"), help="Target environment (dev/staging)")
     parser.addoption("--platform", action="store", default=os.getenv("APP_PLATFORM", "android"), help="Target platform (android/ios)")
     parser.addoption("--require-real", action="store_true", default=False, help="Fail instead of skipping when device not available")
@@ -40,11 +41,16 @@ def settings(request):
     return get_settings(env_name, platform)
 
 
+def _mobile_tests_enabled() -> bool:
+    """Central check to decide whether device-dependent tests should execute."""
+    return os.getenv("RUN_MOBILE_TESTS", "").lower() == "true" or os.getenv("USE_REAL_DEVICE", "0") == "1"
+
+
 @pytest.fixture(scope="session")
 def driver(settings, request):
     """Return real driver when available, otherwise DummyDriver to keep suite green."""
     init_logger()
-    run_mobile = os.getenv("RUN_MOBILE_TESTS", "").lower() == "true" or os.getenv("USE_REAL_DEVICE", "0") == "1"
+    run_mobile = _mobile_tests_enabled()
 
     # short-circuit if mobile tests disabled
     if not run_mobile:
@@ -73,7 +79,7 @@ def creds(settings):
 
 def pytest_collection_modifyitems(config, items):
     """Skip device-required tests when running without a real device."""
-    run_mobile = os.getenv("RUN_MOBILE_TESTS", "").lower() == "true" or os.getenv("USE_REAL_DEVICE", "0") == "1"
+    run_mobile = _mobile_tests_enabled()
     for item in items:
         if "requires_device" in item.keywords and not run_mobile:
             item.add_marker(pytest.mark.skip(reason="Mobile tests skipped (RUN_MOBILE_TESTS not set)."))

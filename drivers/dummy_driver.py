@@ -10,16 +10,16 @@ from selenium.common.exceptions import NoSuchElementException
 class DummyElement:
     locator: Any
 
-    def click(self):
+    def click(self) -> bool:
         return True
 
-    def clear(self):
+    def clear(self) -> bool:
         return True
 
-    def send_keys(self, *_args, **_kwargs):
+    def send_keys(self, *_args, **_kwargs) -> bool:
         return True
 
-    def is_displayed(self):
+    def is_displayed(self) -> bool:
         return True
 
 
@@ -31,21 +31,21 @@ class DummyDriver:
         self.is_dummy = True
         self.startup_error = None
 
-    def implicitly_wait(self, seconds: int):
+    def implicitly_wait(self, seconds: int) -> None:
         self.implicitly_wait_time = seconds
 
-    def find_element(self, *_args, **_kwargs):
+    def find_element(self, *_args, **_kwargs) -> DummyElement:
         # Always return an element so locator fallback never fails in dummy mode
         return DummyElement(locator=_args or _kwargs)
 
-    def quit(self):
+    def quit(self) -> bool:
         return True
 
     # Compatibility with simple swipe usage if added later
-    def swipe(self, *_args, **_kwargs):
+    def swipe(self, *_args, **_kwargs) -> bool:
         return True
 
-    def get_window_size(self):
+    def get_window_size(self) -> dict[str, int]:
         return {"width": 1080, "height": 1920}
 
 

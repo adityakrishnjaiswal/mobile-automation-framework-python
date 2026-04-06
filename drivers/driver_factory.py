@@ -6,7 +6,7 @@ It also hosts simple retry and locator fallback helpers to keep tests stable.
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, Union
 
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
@@ -17,18 +17,31 @@ from drivers.dummy_driver import DummyDriver
 
 logger = logging.getLogger(__name__)
 
+# Type aliases keep locator handling explicit and self-documenting
+Locator = Tuple[str, str]
+LocatorDict = Dict[str, str]
+LocatorInput = Union[Locator, LocatorDict]
+
 
 def _options_from_caps(caps: Dict[str, Any]) -> AppiumOptions:
+    """Build an ``AppiumOptions`` object from raw capabilities.
+
+    Isolated here so future capability munging (e.g., merging profiles) has a
+    single, testable entry point.
+    """
+
     opts = AppiumOptions()
     opts.load_capabilities(caps)
     return opts
 
 
 def create_driver(env: EnvConfig):
-    """Create and return an Appium driver based on the provided settings.
+    """Create an Appium driver with safety nets suitable for CI.
 
-    Falls back to a lightweight DummyDriver when real device/server is not
-    available. Controlled via USE_REAL_DEVICE env var (default: off).
+    * Defaults to ``DummyDriver`` when ``USE_REAL_DEVICE`` is not ``1`` so the
+      suite stays green on dev laptops and CI without devices.
+    * If real session start fails (network/device busy), we still downgrade to
+      ``DummyDriver`` and capture the startup error for later inspection.
     """
 
     use_real = os.getenv("USE_REAL_DEVICE", "0") == "1"
@@ -43,14 +56,23 @@ def create_driver(env: EnvConfig):
         driver.implicitly_wait(env.implicit_wait)
         driver.is_dummy = False
         return driver
-    except Exception as exc:  # noqa: BLE001
+    except WebDriverException as exc:
         logger.warning("Failed to start real driver (%s); falling back to DummyDriver.", exc)
-        dummy = DummyDriver()
-        dummy.startup_error = str(exc)
-        return dummy
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Unexpected driver startup failure (%s); using DummyDriver.", exc)
+
+    dummy = DummyDriver()
+    dummy.startup_error = "Real driver unavailable; check logs for details."
+    return dummy
 
 
 def quit_driver(driver) -> None:
+    """Dispose the driver but remain tolerant of teardown errors.
+
+    Dummy drivers are cheap; skip teardown noise. Real drivers may be flaky on
+    shutdown, so we log warnings instead of failing the suite.
+    """
+
     if getattr(driver, "is_dummy", False):
         return
     try:
@@ -59,11 +81,16 @@ def quit_driver(driver) -> None:
         logger.warning("Error quitting driver: %s", exc)
 
 
-def find_with_fallback(driver, primary, alternates: Optional[list[Dict[str, str]]] = None):
-    """Try primary locator then alternates.
+def find_with_fallback(
+    driver,
+    primary: LocatorInput,
+    alternates: Optional[list[LocatorInput]] = None,
+):
+    """Locate an element using a primary strategy, then ordered alternates.
 
-    `primary` and each element in `alternates` should be a tuple (by, value) or dict
-    with keys `by` and `value` for readability.
+    This keeps page objects resilient by codifying how we iterate through
+    backup locators. Alternates are **ordered** so the most reliable fallback
+    should be first.
     """
 
     alternates = alternates or []
@@ -81,4 +108,4 @@ def find_with_fallback(driver, primary, alternates: Optional[list[Dict[str, str]
         raise
 
 
-__all__ = ["create_driver", "quit_driver", "find_with_fallback"]
+__all__ = ["create_driver", "quit_driver", "find_with_fallback", "Locator", "LocatorDict", "LocatorInput"]
